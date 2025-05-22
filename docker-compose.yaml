@@ -1,0 +1,130 @@
+services:
+ hmaster1:
+  image: hbase:latest
+  hostname: hmaster1
+  container_name: hmaster1
+  volumes:
+    - journal1:/usr/local/hadoop/journal/data
+    - namenode1:/usr/local/hadoop/namenode
+    - zookeeper1:/usr/local/zookeeper/data
+  ports:
+   - "9878:9870"
+   - "8082:8088"
+  networks:
+    - mynetwork
+
+ 
+ hmaster2:
+  image: hbase:latest 
+  hostname: hmaster2
+  container_name: hmaster2
+  volumes:
+    - journal2:/usr/local/hadoop/journal/data
+    - namenode2:/usr/local/hadoop/namenode
+    - zookeeper2:/usr/local/zookeeper/data
+  ports:
+   - "9874:9870"
+   - "8084:8088"
+  networks:
+    - mynetwork   
+ 
+ 
+ hmaster3:
+  image: hbase:latest
+  hostname: hmaster3
+  container_name: hmaster3
+  volumes:
+    - journal3:/usr/local/hadoop/journal/data
+    - namenode3:/usr/local/hadoop/namenode
+    - zookeeper3:/usr/local/zookeeper/data
+  ports:
+   - "9873:9870"
+   - "8085:8088"
+  networks:
+    - mynetwork
+
+ hworker:
+  image: hbase:latest 
+  hostname: hworker
+  container_name: hworker
+  volumes:
+    - datanode1:/usr/local/hadoop/datanode
+  networks:
+    - mynetwork
+
+ hbase1:
+  image: hbase:latest
+  hostname: hbase1
+  container_name: hbase1
+  volumes:
+        - ./script/:/script/
+  depends_on:
+    - hmaster1
+    - hmaster2
+    - hmaster3
+    - hworker
+  ports:
+    - "16010:16010" 
+  networks:
+    - mynetwork
+
+ hbase2:
+  image: hbase:latest
+  hostname: hbase2
+  container_name: hbase2
+  volumes:
+        - ./script/:/script/
+  depends_on:
+    - hmaster1
+    - hmaster2
+    - hmaster3
+    - hworker
+  ports:
+    - "16011:16010"  
+
+  networks:
+    - mynetwork
+
+ regionserver1:
+  image: hbase:latest
+  hostname: regionserver1
+  container_name: regionserver1
+  depends_on:
+    - hbase1
+  ports:
+    - "16030:16030"
+  volumes:
+    - datanode2:/usr/local/hadoop/datanode
+  networks:
+    - mynetwork
+
+ regionserver2:
+  image: hbase:latest
+  hostname: regionserver2
+  container_name: regionserver2
+  depends_on:
+    - hbase1
+  ports:
+    - "16031:16030"  
+  volumes:
+    - datanode3:/usr/local/hadoop/datanode
+  networks:
+    - mynetwork
+
+networks:
+  mynetwork:
+    external: true
+
+volumes:
+  journal1:
+  namenode1:
+  zookeeper1:
+  journal2:
+  namenode2:
+  zookeeper2:
+  journal3:
+  namenode3:
+  zookeeper3:
+  datanode1:
+  datanode2:
+  datanode3:
